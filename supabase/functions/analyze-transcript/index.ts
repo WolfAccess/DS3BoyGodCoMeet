@@ -11,7 +11,7 @@ interface AnalysisRequest {
 }
 
 interface KeyPoint {
-  type: 'decision' | 'question' | 'important' | 'agreement';
+  type: 'decision' | 'action' | 'question' | 'important' | 'agreement' | 'concern';
   text: string;
   snippet: string;
 }
@@ -67,42 +67,40 @@ function extractKeyPoints(text: string): KeyPoint[] {
   const lowerText = text.toLowerCase();
 
   const patterns = {
-  decision: [
-    /\b(we(?:'ll| will| decided| should| plan to| agreed to| are going to))\b/i,
-    /\b(let's|lets|i(?:'ll| will)|we(?:'re| are) choosing|opt(?:ed|ing) for)\b/i,
-    /\b(decided|decision (is|was)|final decision|we're set on|we'll move forward with)\b/i,
-    /\b(going ahead with|settled on|confirmed|concluded)\b/i
-  ],
-
-  question: [
-    // Question words at start or mid-sentence
-    /\b(what|how|why|when|where|who|which)\b.*\?/i,
-    /\b(should|can|could|would|will|do|does|did|may|might)\b.*\?/i,
-    /\b(any thoughts on|do you think|wondering if|can we|should we|how about)\b/i,
-    /(?:^|\s)([A-Z][a-z]+,? )?(could|can|would|should|may|might)\b/i,
-    /\?$/  // fallback: any question mark
-  ],
-
-  important: [
-    /\b(important|urgent|critical|crucial|priority|key|significant)\b/i,
-    /\b(must|essential|vital|imperative|mandatory|required)\b/i,
-    /\b(note that|remember to|keep in mind|don't forget|take note)\b/i,
-    /\b(really|very|extremely|highly|super)\s+(important|critical)\b/i
-  ],
-
-  agreement: [
-    /\b(agreed|agree|absolutely|definitely|exactly|makes sense|good idea)\b/i,
-    /\b(yes|yeah|yep|sure|right|correct|true|sounds good|ok|okay|fine)\b/i,
-    /\b(i like that|i support|approved|perfect|i'm in|count me in|love it)\b/i,
-    /\b(let's do it|go ahead|that's fine|works for me)\b/i
-  ],
-
-  disagreement: [
-    /\b(i disagree|not sure|don't think|i doubt|maybe not|hmm|not really)\b/i,
-    /\b(i'd prefer|i suggest|i propose|i'm not convinced|i have concerns)\b/i,
-    /\b(but|however|although|on the other hand)\b/i
-  ]
-};
+    decision: [
+      /\b(we(?:'ll| will| should)|let's|decided to|going to|planning to|we're going to|i'll|i will)\b/i,
+      /\b(final decision|conclusion|agreed to|settled on)\b/i,
+      /\b(we're choosing|selected|picking|opting for|choosing to)\b/i,
+      /\b(decided|decide to|decision is|let's go with)\b/i
+    ],
+    action: [
+      /\b(i(?:'ll| will)|someone needs to|we need to|action item|i need to)\b/i,
+      /\b(follow up|next steps?|to do|deadline|by tomorrow|by today)\b/i,
+      /\b(i'll handle|take care of|work on|responsible for|i can)\b/i,
+      /\b(let me|i'll go|i'll make|i'll send|i'll create|i'll update)\b/i
+    ],
+    question: [
+      /\b(what|how|why|when|where|who|should we|can we|could we)\b.*\?/i,
+      /\b(do you think|any thoughts on|wondering if)\b/i,
+      /\?/
+    ],
+    important: [
+      /\b(critical|crucial|important|urgent|priority|key point)\b/i,
+      /\b(must|essential|vital|imperative|need to|have to)\b/i,
+      /\b(note that|remember|keep in mind|don't forget)\b/i,
+      /\b(really|very|extremely|highly)\b/i
+    ],
+    agreement: [
+      /\b(agreed|agree|exactly|absolutely|definitely|makes sense|good idea)\b/i,
+      /\b(i like|sounds good|perfect|approved|support|yes|right|correct)\b/i,
+      /\b(let's do it|let's go|i'm in|count me in)\b/i
+    ],
+    concern: [
+      /\b(concerned about|worried about|issue with|problem with)\b/i,
+      /\b(risk|challenge|obstacle|blocker|concern|worry)\b/i,
+      /\b(not sure|uncertain|hesitant|doubt)\b/i
+    ]
+  };
 
   for (const [type, regexList] of Object.entries(patterns)) {
     for (const regex of regexList) {

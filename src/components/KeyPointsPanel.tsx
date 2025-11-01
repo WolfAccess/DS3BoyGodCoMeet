@@ -12,9 +12,11 @@ export function KeyPointsPanel({ keyPoints }: Props) {
   const groupedKeyPoints = useMemo(() => {
     const grouped: Record<KeyPointType, KeyPoint[]> = {
       decision: [],
+      action: [],
       question: [],
       important: [],
-      agreement: []
+      agreement: [],
+      concern: []
     };
 
     keyPoints.forEach(kp => {
