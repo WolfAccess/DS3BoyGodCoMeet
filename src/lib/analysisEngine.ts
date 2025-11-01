@@ -46,9 +46,13 @@ export function detectEmotion(text: string): Emotion {
 
   const hasExclamation = text.includes('!');
   const hasMultipleCaps = (text.match(/[A-Z]/g) || []).length > text.length * 0.3;
+  const hasQuestionMark = text.includes('?');
 
   if (hasMultipleCaps) return 'tense';
   if (hasExclamation && enthusiasmCount > 0) return 'enthusiastic';
+  if (hasExclamation) return 'enthusiastic';
+
+  if (hasQuestionMark) return 'neutral';
 
   return 'calm';
 }

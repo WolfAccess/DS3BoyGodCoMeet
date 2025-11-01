@@ -1,51 +1,23 @@
 import { useMemo } from 'react';
-import { detectKeyPoints, getKeyPointColor, getKeyPointIcon, type KeyPointType } from '../lib/analysisEngine';
+import { getKeyPointColor, getKeyPointIcon, type KeyPointType } from '../lib/analysisEngine';
 import { Lightbulb } from 'lucide-react';
 
-type Transcript = {
-  id: string;
-  participant_id: string;
-  text: string;
-  timestamp: string;
-};
-
-type Participant = {
-  id: string;
-  name: string;
-};
-
-type Props = {
-  transcripts: Transcript[];
-  participants: Participant[];
-};
-
 type KeyPoint = {
+  id: string;
+  meeting_id: string;
+  transcript_id: string;
   type: KeyPointType;
   text: string;
   snippet: string;
-  speaker: string;
-  timestamp: string;
+  speaker_name: string;
+  created_at: string;
 };
 
-export function KeyPointsPanel({ transcripts, participants }: Props) {
-  const keyPoints = useMemo(() => {
-    const allKeyPoints: KeyPoint[] = [];
+type Props = {
+  keyPoints: KeyPoint[];
+};
 
-    transcripts.forEach(transcript => {
-      const detected = detectKeyPoints(transcript.text);
-      const speaker = participants.find(p => p.id === transcript.participant_id)?.name || 'Unknown';
-
-      detected.forEach(kp => {
-        allKeyPoints.push({
-          ...kp,
-          speaker,
-          timestamp: transcript.timestamp
-        });
-      });
-    });
-
-    return allKeyPoints;
-  }, [transcripts, participants]);
+export function KeyPointsPanel({ keyPoints }: Props) {
 
   const groupedKeyPoints = useMemo(() => {
     const grouped: Record<KeyPointType, KeyPoint[]> = {
@@ -58,7 +30,9 @@ export function KeyPointsPanel({ transcripts, participants }: Props) {
     };
 
     keyPoints.forEach(kp => {
-      grouped[kp.type].push(kp);
+      if (kp.type in grouped) {
+        grouped[kp.type].push(kp);
+      }
     });
 
     return grouped;
@@ -106,13 +80,13 @@ export function KeyPointsPanel({ transcripts, participants }: Props) {
               <div className="space-y-2">
                 {points.map((kp, idx) => (
                   <div
-                    key={idx}
+                    key={kp.id}
                     className={`p-3 rounded-lg ${getKeyPointColor(type as KeyPointType)}`}
                   >
                     <div className="flex items-start justify-between mb-1">
-                      <span className="font-semibold text-sm">{kp.speaker}</span>
+                      <span className="font-semibold text-sm">{kp.speaker_name}</span>
                       <span className="text-xs opacity-75">
-                        {new Date(kp.timestamp).toLocaleTimeString()}
+                        {new Date(kp.created_at).toLocaleTimeString()}
                       </span>
                     </div>
                     <p className="text-sm font-medium">{kp.snippet}</p>

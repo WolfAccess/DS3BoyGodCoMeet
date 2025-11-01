@@ -34,6 +34,7 @@ function App() {
   const [analytics, setAnalytics] = useState<MeetingAnalytics | null>(null);
   const [allMeetings, setAllMeetings] = useState<Meeting[]>([]);
   const [invites, setInvites] = useState<MeetingInvite[]>([]);
+  const [keyPoints, setKeyPoints] = useState<KeyPoint[]>([]);
   const [currentSpeaker, setCurrentSpeaker] = useState<string | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [speakStartTimes, setSpeakStartTimes] = useState<Map<string, number>>(new Map());
@@ -111,6 +112,7 @@ function App() {
     setTranscripts([]);
     setActionItems([]);
     setAnalytics(null);
+    setKeyPoints([]);
     setAllMeetings([]);
   };
 
@@ -146,13 +148,14 @@ function App() {
   };
 
   const loadMeetingData = async (meetingId: string) => {
-    const [participantsRes, transcriptsRes, actionItemsRes, analyticsRes, meetingRes, invitesRes] = await Promise.all([
+    const [participantsRes, transcriptsRes, actionItemsRes, analyticsRes, meetingRes, invitesRes, keyPointsRes] = await Promise.all([
       supabase.from('participants').select('*').eq('meeting_id', meetingId),
       supabase.from('transcripts').select('*').eq('meeting_id', meetingId).order('timestamp', { ascending: true }),
       supabase.from('action_items').select('*').eq('meeting_id', meetingId),
       supabase.from('meeting_analytics').select('*').eq('meeting_id', meetingId).maybeSingle(),
       supabase.from('meetings').select('*').eq('id', meetingId).single(),
-      supabase.from('meeting_invites').select('*').eq('meeting_id', meetingId)
+      supabase.from('meeting_invites').select('*').eq('meeting_id', meetingId),
+      supabase.from('key_points').select('*').eq('meeting_id', meetingId)
     ]);
 
     if (participantsRes.data) setParticipants(participantsRes.data);
@@ -161,6 +164,7 @@ function App() {
     if (analyticsRes.data) setAnalytics(analyticsRes.data);
     if (meetingRes.data) setCurrentMeeting(meetingRes.data);
     if (invitesRes.data) setInvites(invitesRes.data);
+    if (keyPointsRes.data) setKeyPoints(keyPointsRes.data);
   };
 
   const addParticipant = async (name: string) => {
@@ -297,7 +301,14 @@ function App() {
         speaker_name: speakerName
       }));
 
-      await supabase.from('key_points').insert(keyPointsToInsert);
+      const { data: insertedKeyPoints } = await supabase
+        .from('key_points')
+        .insert(keyPointsToInsert)
+        .select();
+
+      if (insertedKeyPoints) {
+        setKeyPoints([...keyPoints, ...insertedKeyPoints]);
+      }
     }
 
     const actionItemText = extractActionItems(text);
@@ -607,6 +618,7 @@ function App() {
                 setTranscripts([]);
                 setActionItems([]);
                 setAnalytics(null);
+                setKeyPoints([]);
                 setCurrentSpeaker(null);
                 setIsRecording(false);
               }}
@@ -654,11 +666,7 @@ function App() {
             currentSpeaker={currentSpeaker}
           />
           <KeyPointsPanel
-            transcripts={transcripts.map(t => ({
-              ...t,
-              text: t.content
-            }))}
-            participants={participants}
+            keyPoints={keyPoints}
           />
         </div>
 
