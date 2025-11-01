@@ -59,16 +59,22 @@ export function MeetingRecorder({
 
       recognitionRef.current.onresult = (event: any) => {
         let final = '';
+        let interim = '';
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
             final += transcript + ' ';
+          } else {
+            interim += transcript;
           }
         }
 
+        setInterimTranscript(interim);
+
         if (final && currentSpeaker) {
           onAddTranscript(currentSpeaker, final.trim());
+          setInterimTranscript('');
         }
       };
 
@@ -366,6 +372,13 @@ export function MeetingRecorder({
                   Switch to manual input using the toggle above.
                 </p>
               </div>
+            </div>
+          )}
+
+          {useMicrophone && interimTranscript && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-600 font-medium mb-1">Listening...</p>
+              <p className="text-sm text-gray-700 italic">{interimTranscript}</p>
             </div>
           )}
 
