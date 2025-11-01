@@ -307,8 +307,14 @@ function App() {
       setTranscripts([...transcripts, data]);
 
       if (analysis.keyPoints.length > 0) {
-        const participant = participants.find(p => p.id === participantId);
-        const speakerName = participant?.name || 'Unknown';
+        const { data: participantData } = await supabase
+          .from('participants')
+          .select('name')
+          .eq('id', participantId)
+          .single();
+
+        const speakerName = participantData?.name || 'Unknown';
+        console.log('Speaker name for key points:', speakerName, 'participantId:', participantId);
 
         const keyPointsToInsert = analysis.keyPoints.map(kp => ({
           meeting_id: currentMeeting.id,
