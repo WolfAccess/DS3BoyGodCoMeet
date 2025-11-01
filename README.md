@@ -212,4 +212,4 @@ For detailed help, see [SETUP.md](./SETUP.md)
 **Built with ❤️ using React, TypeScript, and Supabase**
 
 </div>
-DS3BoyGodCoMeet
+
