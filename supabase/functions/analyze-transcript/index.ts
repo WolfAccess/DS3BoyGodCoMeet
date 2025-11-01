@@ -125,7 +125,7 @@ function extractKeyPoints(text: string): KeyPoint[] {
 
 function extractActionItem(text: string): string | null {
   const lowerText = text.toLowerCase();
-  const actionWords = /\b(i will|i'll|let me|i can|i'll handle|i'll take care|i'll do|we should|we need to|i need to|follow up|next steps?|action item|to do|deadline|by tomorrow|by today|i'll make|i'll send|i'll create|i'll update)\b/i;
+  const actionWords = /\b(i will|i'll|let me|i can|i plan to|my plan is|i'll handle|i'll take care|i'll do|we should|we need to|i need to|follow up|next steps?|action item|to do|deadline|by tomorrow|by today|i'll make|i'll send|i'll create|i'll update)\b/i;
 
   return actionWords.test(lowerText) ? text : null;
 }
