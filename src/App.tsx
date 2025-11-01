@@ -357,6 +357,7 @@ function App() {
           ...(analytics?.emotion_timeline || []),
           { time: data.timestamp, emotion: analysis.emotion }
         ],
+        speaker_balance: analytics?.speaker_balance || {},
         conflict_moments: analysis.sentiment === 'conflict'
           ? [...(analytics?.conflict_moments || []), { time: data.timestamp, content: text }]
           : (analytics?.conflict_moments || []),
