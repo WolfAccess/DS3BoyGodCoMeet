@@ -27,7 +27,7 @@ interface AnalysisResponse {
 function analyzeEmotion(text: string): 'calm' | 'tense' | 'enthusiastic' | 'neutral' {
   const lowerText = text.toLowerCase();
   
-  const tensionWords = /\b(frustrated|angry|upset|annoyed|irritated|stress|pressure|urgent|critical|emergency|must|immediately|fuck|shut up)\b/gi;
+  const tensionWords = /\b(frustrated|angry|upset|annoyed|irritated|stress|pressure|urgent|critical|emergency|must|immediately|fuck|shut up|bitch)\b/gi;
   const enthusiasmWords = /\b(excited|amazing|awesome|fantastic|love it|brilliant|incredible|excellent|outstanding|wonderful|perfect)\b/gi;
   
   const tensionMatches = (lowerText.match(tensionWords) || []).length;
