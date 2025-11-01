@@ -4,34 +4,49 @@ export type SentimentType = 'conflict' | 'agreement' | 'neutral';
 const conflictKeywords = [
   'disagree', 'wrong', 'no way', 'but', 'however', 'issue', 'problem',
   'concern', 'worried', 'against', 'oppose', 'cannot accept', 'not good',
-  'bad idea', 'mistake', 'incorrect'
+  'bad idea', 'mistake', 'incorrect', 'actually', 'don\'t think so', 'not sure',
+  'unacceptable', 'reject', 'objection', 'challenge', 'difficulty', 'obstacle',
+  'blocker', 'risk', 'drawback', 'flaw', 'error', 'misunderstanding'
 ];
 
 const agreementKeywords = [
   'agree', 'yes', 'exactly', 'right', 'correct', 'perfect', 'good idea',
   'let\'s do it', 'sounds good', 'i like', 'great', 'excellent', 'approve',
-  'support', 'absolutely', 'definitely', 'makes sense'
+  'support', 'absolutely', 'definitely', 'makes sense', 'yep', 'yeah', 'sure',
+  'of course', 'totally', 'certainly', 'precisely', 'indeed', 'sounds great',
+  'that works', 'aligned', 'concur', 'let\'s proceed', 'agreed'
 ];
 
 const actionItemKeywords = [
   'i will', 'i\'ll', 'let me', 'i can', 'i\'ll handle', 'i\'ll take care',
   'i\'ll do', 'we should', 'we need to', 'follow up', 'next steps',
-  'action item', 'to do', 'deadline', 'by', 'before'
+  'action item', 'to do', 'deadline', 'by', 'before', 'i volunteer', 'assign',
+  'task', 'owner', 'responsible', 'on it', 'i\'ve got this', 'will do',
+  'need to check', 'let\'s ensure', 'we must', 'plan is', 'timeline', 'due date',
+  'by end of', 'EOD', 'ASAP'
 ];
 
 const decisionKeywords = [
   'decided', 'decision', 'we\'ll go with', 'let\'s use', 'agreed to',
-  'final decision', 'conclusion', 'settled on', 'choosing', 'selected'
+  'final decision', 'conclusion', 'settled on', 'choosing', 'selected',
+  'finalized', 'confirmed', 'resolved', 'the choice is', 'option selected',
+  'chosen', 'determined', 'select', 'choose', 'opt for', 'picked', 'move forward with'
 ];
 
 const tensionKeywords = [
   'frustrated', 'angry', 'upset', 'annoyed', 'irritated', 'stress',
-  'pressure', 'urgent', 'critical', 'emergency', 'must', 'immediately', 'fuck', 'shut up', 'bitch'
+  'pressure', 'urgent', 'critical', 'emergency', 'must', 'immediately',
+  'fuck', 'shut up', 'bitch', 'disappointed', 'unhappy', 'dismayed',
+  'agitated', 'mad', 'severe', 'high priority', 'bottleneck', 'at risk',
+  'warning', 'disaster', 'failing', 'shit', 'damn', 'hell', 'stupid',
+  'idiot', 'terrible', 'awful', 'horrible', 'useless', 'nonsense'
 ];
 
 const enthusiasmKeywords = [
   'excited', 'amazing', 'awesome', 'fantastic', 'love it', 'brilliant',
-  'incredible', 'excellent', 'outstanding', 'wonderful', 'perfect'
+  'incredible', 'excellent', 'outstanding', 'wonderful', 'perfect', 'love',
+  'love this', 'superb', 'terrific', 'phenomenal', 'fabulous', 'stellar',
+  'great work', 'well done', 'thrilled', 'delighted', 'can\'t wait', 'looking forward'
 ];
 
 export function detectEmotion(text: string): Emotion {
