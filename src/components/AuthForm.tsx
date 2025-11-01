@@ -43,7 +43,7 @@ export function AuthForm({ onSignIn, onSignUp }: Props) {
           <div className="flex items-center justify-center mb-4">
             <img src="/Deans Cup Banner.png" alt="CoMeet" className="h-24 w-auto" />
           </div>
-          <p className="text-xl text-gray-600">AI-Powered Meeting Analysis</p>
+          <p className="text-xl text-gray-600">Meet. Analyze. Summarize.</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-xl p-8">

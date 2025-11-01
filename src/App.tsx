@@ -14,7 +14,7 @@ import { AuthForm } from './components/AuthForm';
 import { LiveTranscript } from './components/LiveTranscript';
 import { KeyPointsPanel } from './components/KeyPointsPanel';
 import { MeetingSearch } from './components/MeetingSearch';
-import { Plus, LogOut } from 'lucide-react';
+import { Plus, LogOut, Edit2, Check, X } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 function App() {
@@ -34,6 +34,8 @@ function App() {
   const [showNewMeetingDialog, setShowNewMeetingDialog] = useState(false);
   const [newMeetingTitle, setNewMeetingTitle] = useState('');
   const [interimTranscript, setInterimTranscript] = useState('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [editedTitle, setEditedTitle] = useState('');
 
   useEffect(() => {
     checkUser();
@@ -542,6 +544,33 @@ function App() {
     }, 500);
   };
 
+  const startEditingTitle = () => {
+    if (currentMeeting) {
+      setEditedTitle(currentMeeting.title);
+      setIsEditingTitle(true);
+    }
+  };
+
+  const saveTitle = async () => {
+    if (!currentMeeting || !editedTitle.trim()) return;
+
+    const { error } = await supabase
+      .from('meetings')
+      .update({ title: editedTitle.trim() })
+      .eq('id', currentMeeting.id);
+
+    if (!error) {
+      setCurrentMeeting({ ...currentMeeting, title: editedTitle.trim() });
+      setIsEditingTitle(false);
+      loadMeetings();
+    }
+  };
+
+  const cancelEditingTitle = () => {
+    setIsEditingTitle(false);
+    setEditedTitle('');
+  };
+
 
   if (loading) {
     return (
@@ -566,7 +595,7 @@ function App() {
             <div className="flex items-center justify-center mb-4">
               <img src="/Deans Cup Banner.png" alt="CoMeet" className="h-24 w-auto" />
             </div>
-            <p className="text-xl text-gray-600">AI-Powered Meeting Analysis & Summarization</p>
+            <p className="text-xl text-gray-600">Meet. Analyze. Summarize.</p>
           </div>
 
           {!showNewMeetingDialog ? (
@@ -642,8 +671,44 @@ function App() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-8">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">{currentMeeting.title}</h1>
+          <div className="flex-1">
+            {isEditingTitle ? (
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="text"
+                  value={editedTitle}
+                  onChange={(e) => setEditedTitle(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && saveTitle()}
+                  className="text-4xl font-bold text-gray-900 border-b-2 border-blue-500 focus:outline-none bg-transparent"
+                  autoFocus
+                />
+                <button
+                  onClick={saveTitle}
+                  className="p-2 hover:bg-green-100 rounded-lg transition-colors"
+                  title="Save"
+                >
+                  <Check className="w-5 h-5 text-green-600" />
+                </button>
+                <button
+                  onClick={cancelEditingTitle}
+                  className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                  title="Cancel"
+                >
+                  <X className="w-5 h-5 text-red-600" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 mb-2 group">
+                <h1 className="text-4xl font-bold text-gray-900">{currentMeeting.title}</h1>
+                <button
+                  onClick={startEditingTitle}
+                  className="opacity-0 group-hover:opacity-100 p-2 hover:bg-gray-100 rounded-lg transition-all"
+                  title="Rename meeting"
+                >
+                  <Edit2 className="w-5 h-5 text-gray-600" />
+                </button>
+              </div>
+            )}
             <p className="text-gray-600">
               Started at {new Date(currentMeeting.start_time).toLocaleString()}
             </p>
