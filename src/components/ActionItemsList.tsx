@@ -28,10 +28,10 @@ export function ActionItemsList({ actionItems, participants, onUpdate }: Props) 
     }
   };
 
-  const getParticipantName = (participantId?: string) => {
+  const getParticipantName = (participantId?: string | null) => {
     if (!participantId) return 'Unassigned';
     const participant = participants.find(p => p.id === participantId);
-    return participant?.name || 'Unknown';
+    return participant?.name || 'Removed Participant';
   };
 
   const sortedItems = [...actionItems].sort((a, b) => {

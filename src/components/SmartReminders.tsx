@@ -49,9 +49,9 @@ export function SmartReminders({ userId }: Props) {
 
   const scheduledItems = allActionItems.filter(item => !item.completed && item.due_date);
 
-  const getParticipantName = (participantId?: string) => {
+  const getParticipantName = (participantId?: string | null) => {
     if (!participantId) return 'Unassigned';
-    return participantMap.get(participantId) || 'Unknown';
+    return participantMap.get(participantId) || 'Removed Participant';
   };
 
   const getGMT8Date = (date?: Date): Date => {
