@@ -1,13 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { detectKeyPoints, getKeyPointColor, getKeyPointIcon, type KeyPointType } from '../lib/analysisEngine';
-
-type Transcript = {
-  id: string;
-  participant_id: string;
-  text: string;
-  timestamp: string;
-  emotion?: string;
-};
+import { type Transcript } from '../lib/supabase';
 
 type Participant = {
   id: string;
@@ -35,7 +28,7 @@ export function LiveTranscript({ transcripts, participants, interimText, current
   };
 
   const renderTranscriptWithKeyPoints = (transcript: Transcript) => {
-    const keyPoints = detectKeyPoints(transcript.text);
+    const keyPoints = detectKeyPoints(transcript.content);
     const hasKeyPoints = keyPoints.length > 0;
 
     return (
@@ -66,7 +59,7 @@ export function LiveTranscript({ transcripts, participants, interimText, current
           )}
         </div>
         <p className={`text-gray-800 ${hasKeyPoints ? 'font-medium' : ''}`}>
-          {transcript.text}
+          {transcript.content}
         </p>
         {hasKeyPoints && (
           <div className="mt-2 pt-2 border-t border-blue-200">

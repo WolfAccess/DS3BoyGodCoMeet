@@ -1,17 +1,7 @@
 import { useMemo } from 'react';
 import { getKeyPointColor, getKeyPointIcon, type KeyPointType } from '../lib/analysisEngine';
+import { type KeyPoint } from '../lib/supabase';
 import { Lightbulb } from 'lucide-react';
-
-type KeyPoint = {
-  id: string;
-  meeting_id: string;
-  transcript_id: string;
-  type: KeyPointType;
-  text: string;
-  snippet: string;
-  speaker_name: string;
-  created_at: string;
-};
 
 type Props = {
   keyPoints: KeyPoint[];
