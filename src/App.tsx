@@ -775,10 +775,10 @@ function App() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <ConflictAgreementTracker
-            conflicts={analytics?.conflict_moments || []}
-            agreements={analytics?.agreement_moments || []}
+            transcripts={transcripts}
+            participants={participants}
           />
-          <KeyDecisions decisions={analytics?.key_decisions || []} />
+          <KeyDecisions keyPoints={keyPoints} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">

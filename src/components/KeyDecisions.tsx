@@ -1,30 +1,31 @@
 import { Lightbulb } from 'lucide-react';
-
-type Decision = {
-  time: string;
-  decision: string;
-};
+import { type KeyPoint } from '../lib/supabase';
 
 type Props = {
-  decisions: Decision[];
+  keyPoints: KeyPoint[];
 };
 
-export function KeyDecisions({ decisions }: Props) {
+export function KeyDecisions({ keyPoints }: Props) {
+  const decisionPoints = keyPoints.filter(kp => kp.type === 'decision');
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center gap-2 mb-4">
         <Lightbulb className="w-5 h-5 text-yellow-500" />
-        <h2 className="text-xl font-semibold text-gray-800">Key Decisions</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Key Decisions ({decisionPoints.length})</h2>
       </div>
 
-      <div className="space-y-3">
-        {decisions.length > 0 ? (
-          decisions.map((decision, idx) => (
-            <div key={idx} className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-xs text-yellow-600 mb-2">
-                {new Date(decision.time).toLocaleTimeString()}
-              </p>
-              <p className="text-sm text-gray-800 font-medium">{decision.decision}</p>
+      <div className={`space-y-3 ${decisionPoints.length > 8 ? 'max-h-[500px] overflow-y-auto pr-2' : ''}`}>
+        {decisionPoints.length > 0 ? (
+          decisionPoints.map((decision) => (
+            <div key={decision.id} className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <div className="flex items-start justify-between mb-2">
+                <span className="text-xs font-semibold text-yellow-700">{decision.speaker_name}</span>
+                <span className="text-xs text-yellow-600">
+                  {new Date(decision.created_at).toLocaleTimeString()}
+                </span>
+              </div>
+              <p className="text-sm text-gray-800 font-medium">{decision.text}</p>
             </div>
           ))
         ) : (
