@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import type { EmotionWordCounts } from '../lib/analysisEngine';
 
@@ -28,11 +28,9 @@ const emotionLabels = {
 
 export function EmotionHeatmap({ timeline, meetingId }: Props) {
   const [currentMeetingWords, setCurrentMeetingWords] = useState<EmotionWordCounts | null>(null);
-  const [allMeetingsAverage, setAllMeetingsAverage] = useState<Record<string, number> | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    loadAllMeetingsAverage();
     if (meetingId) {
       loadCurrentMeetingWords();
     }
@@ -61,83 +59,22 @@ export function EmotionHeatmap({ timeline, meetingId }: Props) {
     }
   };
 
-  const loadAllMeetingsAverage = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('meeting_analytics')
-        .select('emotion_word_counts');
-
-      if (error) {
-        console.error('Error loading emotion averages:', error);
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        setAllMeetingsAverage(null);
-        return;
-      }
-
-      const totalCounts = {
-        calm: 0,
-        tense: 0,
-        enthusiastic: 0,
-        neutral: 0
-      };
-
-      let meetingCount = 0;
-
-      data.forEach((analytics: any) => {
-        const emotionCounts = analytics.emotion_word_counts as EmotionWordCounts;
-        if (emotionCounts) {
-          totalCounts.calm += emotionCounts.calm?.count || 0;
-          totalCounts.tense += emotionCounts.tense?.count || 0;
-          totalCounts.enthusiastic += emotionCounts.enthusiastic?.count || 0;
-          totalCounts.neutral += emotionCounts.neutral?.count || 0;
-          meetingCount++;
-        }
-      });
-
-      if (meetingCount > 0) {
-        const averages = {
-          calm: totalCounts.calm / meetingCount,
-          tense: totalCounts.tense / meetingCount,
-          enthusiastic: totalCounts.enthusiastic / meetingCount,
-          neutral: totalCounts.neutral / meetingCount
-        };
-        setAllMeetingsAverage(averages);
-      }
-    } catch (error) {
-      console.error('Error loading averages:', error);
-    }
+  const emotionCounts = currentMeetingWords || {
+    calm: { words: [], count: 0 },
+    tense: { words: [], count: 0 },
+    enthusiastic: { words: [], count: 0 },
+    neutral: { words: [], count: 0 }
   };
 
-  const emotionCounts = useMemo(() => {
-    const counts = {
-      calm: 0,
-      tense: 0,
-      enthusiastic: 0,
-      neutral: 0
-    };
-
-    timeline.forEach(point => {
-      counts[point.emotion]++;
-    });
-
-    return counts;
-  }, [timeline]);
-
-  const displayCounts = allMeetingsAverage || emotionCounts;
-  const totalPoints = allMeetingsAverage
-    ? Object.values(allMeetingsAverage).reduce((sum, count) => sum + count, 0)
-    : timeline.length;
+  const totalWords = Object.values(emotionCounts).reduce((sum, cat) => sum + cat.count, 0);
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Emotion Heatmap</h2>
-        {allMeetingsAverage && (
+        {totalWords > 0 && (
           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
-            Average across all meetings
+            {totalWords} emotion words detected
           </span>
         )}
       </div>
@@ -145,7 +82,7 @@ export function EmotionHeatmap({ timeline, meetingId }: Props) {
       <div className="mb-6">
         <div className="flex h-12 rounded-lg overflow-hidden">
           {timeline.map((point, idx) => {
-            const width = `${(1 / totalPoints) * 100}%`;
+            const width = `${(1 / timeline.length) * 100}%`;
             return (
               <div
                 key={idx}
@@ -159,9 +96,8 @@ export function EmotionHeatmap({ timeline, meetingId }: Props) {
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        {Object.entries(displayCounts).map(([emotion, count]) => {
-          const percentage = totalPoints > 0 ? ((count / totalPoints) * 100).toFixed(1) : 0;
-          const displayCount = allMeetingsAverage ? count.toFixed(1) : count;
+        {Object.entries(emotionCounts).map(([emotion, data]) => {
+          const percentage = totalWords > 0 ? ((data.count / totalWords) * 100).toFixed(1) : 0;
           return (
             <div key={emotion} className="flex items-center gap-3">
               <div className={`w-4 h-4 rounded ${emotionColors[emotion as keyof typeof emotionColors]}`} />
@@ -169,15 +105,13 @@ export function EmotionHeatmap({ timeline, meetingId }: Props) {
                 <div className="flex justify-between text-sm mb-1">
                   <div className="flex items-center gap-2">
                     <span className="font-medium text-gray-700">{emotionLabels[emotion as keyof typeof emotionLabels]}</span>
-                    {allMeetingsAverage && (
-                      <span className="text-xs text-gray-400">avg: {displayCount}</span>
-                    )}
-                    {currentMeetingWords && currentMeetingWords[emotion as keyof EmotionWordCounts]?.words.length > 0 && (
+                    <span className="text-xs text-gray-400">({data.count} words)</span>
+                    {data.words.length > 0 && (
                       <button
                         onClick={() => setExpandedCategory(expandedCategory === emotion ? null : emotion)}
                         className="text-xs text-blue-600 hover:text-blue-700 underline"
                       >
-                        {expandedCategory === emotion ? 'hide' : 'show'} words
+                        {expandedCategory === emotion ? 'hide' : 'show'}
                       </button>
                     )}
                   </div>
@@ -189,17 +123,14 @@ export function EmotionHeatmap({ timeline, meetingId }: Props) {
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
-                {expandedCategory === emotion && currentMeetingWords && (
+                {expandedCategory === emotion && data.words.length > 0 && (
                   <div className="mt-2 p-2 bg-gray-50 rounded text-xs">
                     <div className="flex flex-wrap gap-1">
-                      {currentMeetingWords[emotion as keyof EmotionWordCounts].words.map((word, idx) => (
+                      {data.words.map((word, idx) => (
                         <span key={idx} className="px-2 py-1 bg-white border border-gray-200 rounded">
                           {word}
                         </span>
                       ))}
-                    </div>
-                    <div className="mt-1 text-gray-500">
-                      Total: {currentMeetingWords[emotion as keyof EmotionWordCounts].count} words
                     </div>
                   </div>
                 )}
