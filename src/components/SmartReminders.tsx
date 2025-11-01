@@ -1,4 +1,4 @@
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { supabase, type ActionItem } from '../lib/supabase';
 
@@ -44,6 +44,17 @@ export function SmartReminders({ userId }: Props) {
       const map = new Map<string, string>();
       participants.forEach(p => map.set(p.id, p.name));
       setParticipantMap(map);
+    }
+  };
+
+  const deleteActionItem = async (itemId: string) => {
+    const { error } = await supabase
+      .from('action_items')
+      .delete()
+      .eq('id', itemId);
+
+    if (!error) {
+      setAllActionItems(prev => prev.filter(item => item.id !== itemId));
     }
   };
 
@@ -185,12 +196,27 @@ export function SmartReminders({ userId }: Props) {
                   {day.items.map(item => (
                     <div
                       key={item.id}
-                      className="bg-blue-500 text-white text-xs p-1.5 rounded truncate"
+                      className="bg-blue-500 text-white text-xs p-1.5 rounded group relative"
                       title={`${item.content} - ${getParticipantName(item.participant_id)}`}
                     >
-                      <div className="font-medium truncate">{item.content}</div>
-                      <div className="text-[10px] opacity-80 truncate">
-                        {getParticipantName(item.participant_id)}
+                      <div className="flex items-start justify-between gap-1">
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium truncate">{item.content}</div>
+                          <div className="text-[10px] opacity-80 truncate">
+                            {getParticipantName(item.participant_id)}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm('Delete this action item?')) {
+                              deleteActionItem(item.id);
+                            }
+                          }}
+                          className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 hover:bg-red-600 rounded"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     </div>
                   ))}

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageSquare, Mail, Lock, User, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle } from 'lucide-react';
 
 type Props = {
   onSignIn: (email: string, password: string) => Promise<void>;
@@ -40,9 +40,8 @@ export function AuthForm({ onSignIn, onSignUp }: Props) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center p-8">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <MessageSquare className="w-12 h-12 text-blue-600" />
-            <h1 className="text-5xl font-bold text-gray-900">TalkLess</h1>
+          <div className="flex items-center justify-center mb-4">
+            <img src="/Deans Cup Banner.png" alt="CoMeet" className="h-24 w-auto" />
           </div>
           <p className="text-xl text-gray-600">AI-Powered Meeting Analysis</p>
         </div>

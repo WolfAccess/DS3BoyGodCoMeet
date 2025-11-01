@@ -14,7 +14,7 @@ import { AuthForm } from './components/AuthForm';
 import { LiveTranscript } from './components/LiveTranscript';
 import { KeyPointsPanel } from './components/KeyPointsPanel';
 import { MeetingSearch } from './components/MeetingSearch';
-import { MessageSquare, Plus, LogOut } from 'lucide-react';
+import { Plus, LogOut } from 'lucide-react';
 import type { User } from '@supabase/supabase-js';
 
 function App() {
@@ -547,7 +547,7 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 flex items-center justify-center">
         <div className="text-center">
-          <MessageSquare className="w-16 h-16 text-blue-600 mx-auto mb-4 animate-pulse" />
+          <img src="/Deans Cup Banner.png" alt="CoMeet" className="h-24 w-auto mx-auto mb-4 animate-pulse" />
           <p className="text-xl text-gray-600">Loading...</p>
         </div>
       </div>
@@ -563,9 +563,8 @@ function App() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50 p-8">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <MessageSquare className="w-12 h-12 text-blue-600" />
-              <h1 className="text-5xl font-bold text-gray-900">TalkLess</h1>
+            <div className="flex items-center justify-center mb-4">
+              <img src="/Deans Cup Banner.png" alt="CoMeet" className="h-24 w-auto" />
             </div>
             <p className="text-xl text-gray-600">AI-Powered Meeting Analysis & Summarization</p>
           </div>
