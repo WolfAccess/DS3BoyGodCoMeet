@@ -58,7 +58,9 @@ export function SmartReminders({ userId }: Props) {
     }
   };
 
-  const scheduledItems = allActionItems.filter(item => !item.completed && item.due_date);
+  const scheduledItems = useMemo(() => {
+    return allActionItems.filter(item => !item.completed && item.due_date);
+  }, [allActionItems]);
 
   const getParticipantName = (participantId?: string | null) => {
     if (!participantId) return 'Unassigned';

@@ -46,7 +46,7 @@ export function ActionItemsList({ actionItems, participants, onUpdate }: Props) 
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-xl font-semibold text-gray-800 mb-4">Action Items ({actionItems.length})</h2>
 
-      <div className="space-y-3">
+      <div className={`space-y-3 ${sortedItems.length > 10 ? 'max-h-[500px] overflow-y-auto pr-2' : ''}`}>
         {sortedItems.length > 0 ? (
           sortedItems.map((item) => (
             <div
