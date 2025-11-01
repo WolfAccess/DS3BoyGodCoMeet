@@ -100,7 +100,7 @@ function extractKeyPoints(text: string): KeyPoint[] {
   ],
 
   disagreement: [
-    /\b(i disagree|not sure|don't think|i doubt|maybe not|hmm|not really)\b/i,
+    /\b(i disagree|not sure|don't agree|don't think|i doubt|maybe not|hmm|not really)\b/i,
     /\b(i'd prefer|i suggest|i propose|i'm not convinced|i have concerns)\b/i,
     /\b(but|however|although|on the other hand)\b/i
   ]
