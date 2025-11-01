@@ -26,7 +26,7 @@ const decisionKeywords = [
 
 const tensionKeywords = [
   'frustrated', 'angry', 'upset', 'annoyed', 'irritated', 'stress',
-  'pressure', 'urgent', 'critical', 'emergency', 'must', 'immediately', 'fuck', 'shut up'
+  'pressure', 'urgent', 'critical', 'emergency', 'must', 'immediately', 'fuck', 'shut up', 'bitch'
 ];
 
 const enthusiasmKeywords = [
