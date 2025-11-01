@@ -148,6 +148,8 @@ function App() {
   };
 
   const loadMeetingData = async (meetingId: string) => {
+    console.log('Loading meeting data for:', meetingId);
+
     const [participantsRes, transcriptsRes, actionItemsRes, analyticsRes, meetingRes, invitesRes, keyPointsRes] = await Promise.all([
       supabase.from('participants').select('*').eq('meeting_id', meetingId),
       supabase.from('transcripts').select('*').eq('meeting_id', meetingId).order('timestamp', { ascending: true }),
@@ -157,6 +159,15 @@ function App() {
       supabase.from('meeting_invites').select('*').eq('meeting_id', meetingId),
       supabase.from('key_points').select('*').eq('meeting_id', meetingId)
     ]);
+
+    console.log('Meeting data loaded:', {
+      participants: participantsRes.data?.length,
+      transcripts: transcriptsRes.data?.length,
+      actionItems: actionItemsRes.data?.length,
+      analytics: !!analyticsRes.data,
+      keyPoints: keyPointsRes.data?.length,
+      invites: invitesRes.data?.length
+    });
 
     if (participantsRes.data) setParticipants(participantsRes.data);
     if (transcriptsRes.data) setTranscripts(transcriptsRes.data);
