@@ -53,7 +53,7 @@ function analyzeSentiment(text: string): 'conflict' | 'agreement' | 'neutral' | 
   
 const conflictWords = /\b(disagree|wrong|no way|however|issue|problem|concern|worried|against|oppose|cannot accept|not good|bad idea|mistake|incorrect|actually|don't think so|not sure|unacceptable|reject|objection|challenge|difficulty|obstacle|blocker|risk|drawback|flaw|error|misunderstanding)\b/gi;
 
-const agreementWords = /\b(agree|yes|exactly|right|correct|perfect|good idea|let's do it|sounds good|i like|great|excellent|approve|support|absolutely|definitely|makes sense|yep|yeah|sure|of course|totally|certainly|precisely|indeed|sounds great|that works|aligned|concur|let's proceed|agreed)\b/gi;
+const agreementWords = /\b(agree|yes|exactly|right|correct|perfect|good idea|let's do it|sounds good|i like|great|excellent|approve|support|absolutely|definitely|makes sense|yep|yeah|sure|of course|totally|certainly|precisely|indeed|sounds great|aligned|concur|let's proceed|agreed)\b/gi;
   
   const conflictCount = (lowerText.match(conflictWords) || []).length;
   const agreementCount = (lowerText.match(agreementWords) || []).length;
