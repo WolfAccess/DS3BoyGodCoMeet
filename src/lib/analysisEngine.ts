@@ -49,13 +49,6 @@ const enthusiasmKeywords = [
   'great work', 'well done', 'thrilled', 'delighted', 'can\'t wait', 'looking forward'
 ];
 
-export type EmotionWordCounts = {
-  calm: { words: string[]; count: number };
-  tense: { words: string[]; count: number };
-  enthusiastic: { words: string[]; count: number };
-  neutral: { words: string[]; count: number };
-};
-
 export function detectEmotion(text: string): Emotion {
   const lowerText = text.toLowerCase();
 
@@ -77,48 +70,6 @@ export function detectEmotion(text: string): Emotion {
   if (hasQuestionMark) return 'neutral';
 
   return 'calm';
-}
-
-export function extractEmotionWords(text: string): { emotion: Emotion; words: string[] } {
-  const lowerText = text.toLowerCase();
-
-  const tensionMatches = tensionKeywords.filter(kw => lowerText.includes(kw));
-  const enthusiasmMatches = enthusiasmKeywords.filter(kw => lowerText.includes(kw));
-
-  const calmIndicators = ['thank', 'appreciate', 'understood', 'clear', 'okay', 'fine', 'good', 'great', 'nice', 'pleasant'];
-  const calmMatches = calmIndicators.filter(kw => lowerText.includes(kw));
-
-  if (tensionMatches.length >= 1) {
-    return { emotion: 'tense', words: tensionMatches };
-  }
-
-  if (enthusiasmMatches.length >= 1) {
-    return { emotion: 'enthusiastic', words: enthusiasmMatches };
-  }
-
-  if (calmMatches.length >= 1) {
-    return { emotion: 'calm', words: calmMatches };
-  }
-
-  return { emotion: 'neutral', words: [] };
-}
-
-export function aggregateEmotionWords(transcripts: Array<{ content: string }>): EmotionWordCounts {
-  const wordCounts: EmotionWordCounts = {
-    calm: { words: [], count: 0 },
-    tense: { words: [], count: 0 },
-    enthusiastic: { words: [], count: 0 },
-    neutral: { words: [], count: 0 }
-  };
-
-  transcripts.forEach(transcript => {
-    const { emotion, words } = extractEmotionWords(transcript.content);
-
-    wordCounts[emotion].words.push(...words);
-    wordCounts[emotion].count = wordCounts[emotion].words.length;
-  });
-
-  return wordCounts;
 }
 
 export function detectSentiment(text: string): SentimentType | null {
