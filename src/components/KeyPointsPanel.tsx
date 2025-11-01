@@ -77,7 +77,7 @@ export function KeyPointsPanel({ keyPoints }: Props) {
                         {new Date(kp.created_at).toLocaleTimeString()}
                       </span>
                     </div>
-                    <p className="text-sm font-medium">{kp.snippet}</p>
+                    <p className="text-xs mt-1 opacity-75 italic">{kp.text}</p>
                   </div>
                 ))}
               </div>
