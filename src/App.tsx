@@ -341,6 +341,10 @@ function App() {
         if (items) setActionItems(items);
       }
 
+      console.log('Current analytics state:', analytics);
+      console.log('Analysis sentiment:', analysis.sentiment);
+      console.log('Analysis decision:', analysis.decision);
+
       const updatedAnalytics = {
         emotion_timeline: [
           ...(analytics?.emotion_timeline || []),
@@ -357,7 +361,10 @@ function App() {
           : (analytics?.key_decisions || [])
       };
 
-      console.log('Updating analytics:', updatedAnalytics);
+      console.log('Updated analytics to save:', updatedAnalytics);
+      console.log('Agreement moments count:', updatedAnalytics.agreement_moments.length);
+      console.log('Conflict moments count:', updatedAnalytics.conflict_moments.length);
+      console.log('Key decisions count:', updatedAnalytics.key_decisions.length);
 
       const { error: analyticsError } = await supabase
         .from('meeting_analytics')
