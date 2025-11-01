@@ -20,24 +20,35 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export async function analyzeTranscript(text: string): Promise<AnalysisResponse> {
+  console.log('analyzeTranscript called with text:', text);
   const apiUrl = `${SUPABASE_URL}/functions/v1/analyze-transcript`;
+  console.log('API URL:', apiUrl);
 
-  const response = await fetch(apiUrl, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ text })
-  });
+  try {
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text })
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    console.error('Analysis API error:', error);
-    throw new Error(`Analysis failed: ${response.status}`);
+    console.log('API response status:', response.status);
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Analysis API error response:', error);
+      throw new Error(`Analysis failed: ${response.status} - ${error}`);
+    }
+
+    const result = await response.json();
+    console.log('API analysis result:', result);
+    return result;
+  } catch (error) {
+    console.error('Exception in analyzeTranscript:', error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export function getKeyPointColor(type: KeyPointType): string {
