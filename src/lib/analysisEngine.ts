@@ -156,18 +156,13 @@ export function getSpeakerBalanceFeedback(balance: Record<string, number>): stri
   return feedback;
 }
 
-export type KeyPointType = 'decision' | 'action' | 'question' | 'important' | 'agreement' | 'concern';
+export type KeyPointType = 'decision' | 'question' | 'important' | 'agreement';
 
 const keyPointPatterns = {
   decision: [
     /(?:we(?:'ll| will| should)|let's|decided to|going to|planning to) (.*?)(?:\.|$)/i,
     /(?:final decision|conclusion|agreed to|settled on) (.*?)(?:\.|$)/i,
     /(?:we're choosing|selected|picking|opting for) (.*?)(?:\.|$)/i
-  ],
-  action: [
-    /(?:i(?:'ll| will)|someone needs to|we need to|action item) (.*?)(?:\.|$)/i,
-    /(?:follow up|next steps?|to do|deadline|by|before) (.*?)(?:\.|$)/i,
-    /(?:i'll handle|take care of|work on|responsible for) (.*?)(?:\.|$)/i
   ],
   question: [
     /(?:what|how|why|when|where|who|should we|can we|could we) (.*?\?)/i,
@@ -181,10 +176,6 @@ const keyPointPatterns = {
   agreement: [
     /(?:agreed|exactly|absolutely|definitely|makes sense|good idea) (.*?)(?:\.|$)/i,
     /(?:i like|sounds good|perfect|approved|support) (.*?)(?:\.|$)/i
-  ],
-  concern: [
-    /(?:concerned about|worried about|issue with|problem with) (.*?)(?:\.|$)/i,
-    /(?:risk|challenge|obstacle|blocker) (.*?)(?:\.|$)/i
   ]
 };
 
@@ -210,12 +201,10 @@ export function detectKeyPoints(text: string): Array<{ type: KeyPointType; text:
 
 export function getKeyPointColor(type: KeyPointType): string {
   const colors: Record<KeyPointType, string> = {
-    decision: 'bg-purple-100 text-purple-800 border-purple-300',
-    action: 'bg-blue-100 text-blue-800 border-blue-300',
+    decision: 'bg-blue-100 text-blue-800 border-blue-300',
     question: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     important: 'bg-red-100 text-red-800 border-red-300',
-    agreement: 'bg-green-100 text-green-800 border-green-300',
-    concern: 'bg-orange-100 text-orange-800 border-orange-300'
+    agreement: 'bg-green-100 text-green-800 border-green-300'
   };
   return colors[type];
 }
@@ -223,11 +212,9 @@ export function getKeyPointColor(type: KeyPointType): string {
 export function getKeyPointIcon(type: KeyPointType): string {
   const icons: Record<KeyPointType, string> = {
     decision: '✓',
-    action: '→',
     question: '?',
     important: '!',
-    agreement: '👍',
-    concern: '⚠'
+    agreement: '👍'
   };
   return icons[type];
 }
