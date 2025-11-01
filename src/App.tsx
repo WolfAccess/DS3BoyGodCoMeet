@@ -274,7 +274,12 @@ function App() {
   };
 
   const addTranscript = async (participantId: string, text: string) => {
-    if (!currentMeeting) return;
+    if (!currentMeeting) {
+      console.log('No current meeting when trying to add transcript');
+      return;
+    }
+
+    console.log('Adding transcript:', { participantId, text, meetingId: currentMeeting.id });
 
     const emotion = detectEmotion(text);
     const sentiment = detectSentiment(text);
@@ -296,14 +301,17 @@ function App() {
       return;
     }
 
+    console.log('Transcript added successfully:', data);
     setTranscripts([...transcripts, data]);
 
-    const keyPoints = detectKeyPoints(text);
-    if (keyPoints.length > 0) {
+    const detectedKeyPoints = detectKeyPoints(text);
+    console.log('Detected key points:', detectedKeyPoints);
+
+    if (detectedKeyPoints.length > 0) {
       const participant = participants.find(p => p.id === participantId);
       const speakerName = participant?.name || 'Unknown';
 
-      const keyPointsToInsert = keyPoints.map(kp => ({
+      const keyPointsToInsert = detectedKeyPoints.map(kp => ({
         meeting_id: currentMeeting.id,
         transcript_id: data.id,
         type: kp.type,
@@ -312,13 +320,16 @@ function App() {
         speaker_name: speakerName
       }));
 
-      const { data: insertedKeyPoints } = await supabase
+      const { data: insertedKeyPoints, error: kpError } = await supabase
         .from('key_points')
         .insert(keyPointsToInsert)
         .select();
 
-      if (insertedKeyPoints) {
-        setKeyPoints([...keyPoints, ...insertedKeyPoints]);
+      if (kpError) {
+        console.error('Error inserting key points:', kpError);
+      } else if (insertedKeyPoints) {
+        console.log('Key points inserted:', insertedKeyPoints);
+        setKeyPoints(prev => [...prev, ...insertedKeyPoints]);
       }
     }
 
@@ -357,10 +368,16 @@ function App() {
         : (analytics?.key_decisions || [])
     };
 
-    await supabase
+    console.log('Updating analytics:', updatedAnalytics);
+
+    const { error: analyticsError } = await supabase
       .from('meeting_analytics')
       .update(updatedAnalytics)
       .eq('meeting_id', currentMeeting.id);
+
+    if (analyticsError) {
+      console.error('Error updating analytics:', analyticsError);
+    }
 
     const { data: analyticsData } = await supabase
       .from('meeting_analytics')
@@ -368,7 +385,10 @@ function App() {
       .eq('meeting_id', currentMeeting.id)
       .maybeSingle();
 
-    if (analyticsData) setAnalytics(analyticsData);
+    if (analyticsData) {
+      console.log('Analytics refreshed:', analyticsData);
+      setAnalytics(analyticsData);
+    }
   };
 
   const refreshActionItems = async () => {
