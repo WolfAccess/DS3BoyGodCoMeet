@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # CoMeet - Intelligent Meeting Analysis Platform
 
 <div align="center">
@@ -212,3 +213,6 @@ For detailed help, see [SETUP.md](./SETUP.md)
 **Built with ❤️ using React, TypeScript, and Supabase**
 
 </div>
+=======
+DS3BoyGodCoMeet
+>>>>>>> 5215121828cb897c79d791f39a9fc9a3187d4ea7
