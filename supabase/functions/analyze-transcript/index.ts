@@ -27,8 +27,9 @@ interface AnalysisResponse {
 function analyzeEmotion(text: string): 'calm' | 'tense' | 'enthusiastic' | 'neutral' {
   const lowerText = text.toLowerCase();
   
-  const tensionWords = /\b(frustrated|angry|upset|annoyed|irritated|stress|pressure|urgent|critical|emergency|must|immediately|fuck|shut up|bitch)\b/gi;
-  const enthusiasmWords = /\b(excited|amazing|awesome|fantastic|love it|brilliant|incredible|excellent|outstanding|wonderful|perfect)\b/gi;
+const tensionWords = /\b(frustrated|angry|upset|annoyed|irritated|stress|pressure|urgent|critical|emergency|must|immediately|fuck|shut up|bitch|disappointed|unhappy|dismayed|agitated|mad|severe|high priority|bottleneck|at risk|warning|disaster|failing|shit|damn|hell|stupid|idiot|terrible|awful|horrible|useless|nonsense)\b/gi;
+
+const enthusiasmWords = /\b(excited|amazing|awesome|fantastic|love it|brilliant|incredible|excellent|outstanding|wonderful|perfect|love|love this|superb|terrific|phenomenal|fabulous|stellar|great work|well done|thrilled|delighted|can't wait|looking forward)\b/gi;
   
   const tensionMatches = (lowerText.match(tensionWords) || []).length;
   const enthusiasmMatches = (lowerText.match(enthusiasmWords) || []).length;
