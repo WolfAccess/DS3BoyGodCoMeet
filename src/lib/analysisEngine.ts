@@ -22,7 +22,7 @@ const actionItemKeywords = [
   'i\'ll do', 'we should', 'we need to', 'follow up', 'next steps',
   'action item', 'to do', 'deadline', 'by', 'before', 'i volunteer', 'assign',
   'task', 'owner', 'responsible', 'on it', 'i\'ve got this', 'will do',
-  'need to check', 'let\'s ensure', 'we must', 'plan is', 'timeline', 'due date',
+  'need to check', 'let\'s ensure', 'we must', 'plan is','plan to', 'timeline', 'due date',
   'by end of', 'EOD', 'ASAP'
 ];
 
