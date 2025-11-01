@@ -73,8 +73,12 @@ export function MeetingRecorder({
         setInterimTranscript(interim);
 
         if (final && currentSpeaker) {
+          console.log('Speech recognition detected final text:', final.trim());
+          console.log('Current speaker:', currentSpeaker);
           onAddTranscript(currentSpeaker, final.trim());
           setInterimTranscript('');
+        } else if (final && !currentSpeaker) {
+          console.warn('Speech detected but no speaker selected!');
         }
       };
 
@@ -119,6 +123,7 @@ export function MeetingRecorder({
   useEffect(() => {
     if (isRecording && useMicrophone && currentSpeaker && recognitionRef.current) {
       try {
+        console.log('Starting speech recognition for speaker:', currentSpeaker);
         setMicError(null);
         recognitionRef.current.start();
         setIsListening(true);
@@ -127,6 +132,7 @@ export function MeetingRecorder({
       }
     } else if (recognitionRef.current && isListening) {
       try {
+        console.log('Stopping speech recognition');
         recognitionRef.current.stop();
         setIsListening(false);
         setInterimTranscript('');
