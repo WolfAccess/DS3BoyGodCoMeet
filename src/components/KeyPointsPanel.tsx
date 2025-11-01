@@ -65,7 +65,7 @@ export function KeyPointsPanel({ keyPoints }: Props) {
                 <span>{getKeyPointIcon(type as KeyPointType)}</span>
                 <span>{type.toUpperCase()} ({points.length})</span>
               </h3>
-              <div className="space-y-2">
+              <div className={`space-y-2 ${points.length > 10 ? 'max-h-[400px] overflow-y-auto pr-2' : ''}`}>
                 {points.map((kp, idx) => (
                   <div
                     key={kp.id}
