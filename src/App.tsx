@@ -1,13 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, type Meeting, type Participant, type Transcript, type ActionItem, type MeetingAnalytics, type KeyPoint, type MeetingInvite } from './lib/supabase';
-import {
-  detectEmotion,
-  detectSentiment,
-  extractActionItems,
-  extractDecision,
-  extractDueDate,
-  detectKeyPoints
-} from './lib/analysisEngine';
+import { analyzeTranscript, extractDueDate, calculateSpeakerBalance, getSpeakerBalanceFeedback } from './lib/analysisApi';
 import { MeetingRecorder } from './components/MeetingRecorder';
 import { EmotionHeatmap } from './components/EmotionHeatmap';
 import { TalkBalanceMeter } from './components/TalkBalanceMeter';
@@ -281,113 +274,112 @@ function App() {
 
     console.log('Adding transcript:', { participantId, text, meetingId: currentMeeting.id });
 
-    const emotion = detectEmotion(text);
-    const sentiment = detectSentiment(text);
+    try {
+      console.log('Calling analysis API...');
+      const analysis = await analyzeTranscript(text);
+      console.log('Analysis result:', analysis);
 
-    const { data, error } = await supabase
-      .from('transcripts')
-      .insert({
-        meeting_id: currentMeeting.id,
-        participant_id: participantId,
-        content: text,
-        emotion,
-        sentiment_type: sentiment
-      })
-      .select()
-      .single();
+      const { data, error } = await supabase
+        .from('transcripts')
+        .insert({
+          meeting_id: currentMeeting.id,
+          participant_id: participantId,
+          content: text,
+          emotion: analysis.emotion,
+          sentiment_type: analysis.sentiment
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error adding transcript:', error);
-      return;
-    }
-
-    console.log('Transcript added successfully:', data);
-    setTranscripts([...transcripts, data]);
-
-    const detectedKeyPoints = detectKeyPoints(text);
-    console.log('Detected key points:', detectedKeyPoints);
-
-    if (detectedKeyPoints.length > 0) {
-      const participant = participants.find(p => p.id === participantId);
-      const speakerName = participant?.name || 'Unknown';
-
-      const keyPointsToInsert = detectedKeyPoints.map(kp => ({
-        meeting_id: currentMeeting.id,
-        transcript_id: data.id,
-        type: kp.type,
-        text: kp.text,
-        snippet: kp.snippet,
-        speaker_name: speakerName
-      }));
-
-      const { data: insertedKeyPoints, error: kpError } = await supabase
-        .from('key_points')
-        .insert(keyPointsToInsert)
-        .select();
-
-      if (kpError) {
-        console.error('Error inserting key points:', kpError);
-      } else if (insertedKeyPoints) {
-        console.log('Key points inserted:', insertedKeyPoints);
-        setKeyPoints(prev => [...prev, ...insertedKeyPoints]);
+      if (error) {
+        console.error('Error adding transcript:', error);
+        return;
       }
-    }
 
-    const actionItemText = extractActionItems(text);
-    if (actionItemText) {
-      const dueDate = extractDueDate(text);
-      await supabase.from('action_items').insert({
-        meeting_id: currentMeeting.id,
-        participant_id: participantId,
-        content: actionItemText,
-        due_date: dueDate?.toISOString()
-      });
+      console.log('Transcript added successfully:', data);
+      setTranscripts([...transcripts, data]);
 
-      const { data: items } = await supabase
-        .from('action_items')
-        .select('*')
+      if (analysis.keyPoints.length > 0) {
+        const participant = participants.find(p => p.id === participantId);
+        const speakerName = participant?.name || 'Unknown';
+
+        const keyPointsToInsert = analysis.keyPoints.map(kp => ({
+          meeting_id: currentMeeting.id,
+          transcript_id: data.id,
+          type: kp.type,
+          text: kp.text,
+          snippet: kp.snippet,
+          speaker_name: speakerName
+        }));
+
+        const { data: insertedKeyPoints, error: kpError } = await supabase
+          .from('key_points')
+          .insert(keyPointsToInsert)
+          .select();
+
+        if (kpError) {
+          console.error('Error inserting key points:', kpError);
+        } else if (insertedKeyPoints) {
+          console.log('Key points inserted:', insertedKeyPoints);
+          setKeyPoints(prev => [...prev, ...insertedKeyPoints]);
+        }
+      }
+
+      if (analysis.actionItem) {
+        const dueDate = extractDueDate(text);
+        await supabase.from('action_items').insert({
+          meeting_id: currentMeeting.id,
+          participant_id: participantId,
+          content: analysis.actionItem,
+          due_date: dueDate?.toISOString()
+        });
+
+        const { data: items } = await supabase
+          .from('action_items')
+          .select('*')
+          .eq('meeting_id', currentMeeting.id);
+        if (items) setActionItems(items);
+      }
+
+      const updatedAnalytics = {
+        emotion_timeline: [
+          ...(analytics?.emotion_timeline || []),
+          { time: data.timestamp, emotion: analysis.emotion }
+        ],
+        conflict_moments: analysis.sentiment === 'conflict'
+          ? [...(analytics?.conflict_moments || []), { time: data.timestamp, content: text }]
+          : (analytics?.conflict_moments || []),
+        agreement_moments: analysis.sentiment === 'agreement'
+          ? [...(analytics?.agreement_moments || []), { time: data.timestamp, content: text }]
+          : (analytics?.agreement_moments || []),
+        key_decisions: analysis.decision
+          ? [...(analytics?.key_decisions || []), { time: data.timestamp, decision: analysis.decision }]
+          : (analytics?.key_decisions || [])
+      };
+
+      console.log('Updating analytics:', updatedAnalytics);
+
+      const { error: analyticsError } = await supabase
+        .from('meeting_analytics')
+        .update(updatedAnalytics)
         .eq('meeting_id', currentMeeting.id);
-      if (items) setActionItems(items);
-    }
 
-    const decision = extractDecision(text);
+      if (analyticsError) {
+        console.error('Error updating analytics:', analyticsError);
+      }
 
-    const updatedAnalytics = {
-      emotion_timeline: [
-        ...(analytics?.emotion_timeline || []),
-        { time: data.timestamp, emotion }
-      ],
-      conflict_moments: sentiment === 'conflict'
-        ? [...(analytics?.conflict_moments || []), { time: data.timestamp, content: text }]
-        : (analytics?.conflict_moments || []),
-      agreement_moments: sentiment === 'agreement'
-        ? [...(analytics?.agreement_moments || []), { time: data.timestamp, content: text }]
-        : (analytics?.agreement_moments || []),
-      key_decisions: decision
-        ? [...(analytics?.key_decisions || []), { time: data.timestamp, decision }]
-        : (analytics?.key_decisions || [])
-    };
+      const { data: analyticsData } = await supabase
+        .from('meeting_analytics')
+        .select('*')
+        .eq('meeting_id', currentMeeting.id)
+        .maybeSingle();
 
-    console.log('Updating analytics:', updatedAnalytics);
-
-    const { error: analyticsError } = await supabase
-      .from('meeting_analytics')
-      .update(updatedAnalytics)
-      .eq('meeting_id', currentMeeting.id);
-
-    if (analyticsError) {
-      console.error('Error updating analytics:', analyticsError);
-    }
-
-    const { data: analyticsData } = await supabase
-      .from('meeting_analytics')
-      .select('*')
-      .eq('meeting_id', currentMeeting.id)
-      .maybeSingle();
-
-    if (analyticsData) {
-      console.log('Analytics refreshed:', analyticsData);
-      setAnalytics(analyticsData);
+      if (analyticsData) {
+        console.log('Analytics refreshed:', analyticsData);
+        setAnalytics(analyticsData);
+      }
+    } catch (error) {
+      console.error('Error analyzing or adding transcript:', error);
     }
   };
 

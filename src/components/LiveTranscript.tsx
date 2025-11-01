@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { detectKeyPoints, getKeyPointColor, getKeyPointIcon, type KeyPointType } from '../lib/analysisEngine';
+import { analyzeTranscript, getKeyPointColor, getKeyPointIcon, type KeyPointType, type KeyPoint } from '../lib/analysisApi';
 import { type Transcript } from '../lib/supabase';
 
 type Participant = {
@@ -27,8 +27,31 @@ export function LiveTranscript({ transcripts, participants, interimText, current
     return participants.find(p => p.id === participantId)?.name || 'Unknown';
   };
 
+  const detectKeyPointsQuick = (text: string): KeyPoint[] => {
+    const keyPoints: KeyPoint[] = [];
+    const patterns = {
+      decision: /\b(decided|decision|we'll go with|let's use|agreed to)\b/i,
+      action: /\b(i will|i'll|we need to|action item|follow up)\b/i,
+      question: /\b(what|how|why|when|where|who|should we)\b.*\?/i,
+      important: /\b(critical|crucial|important|urgent|priority)\b/i,
+      agreement: /\b(agree|exactly|absolutely|definitely|makes sense)\b/i,
+      concern: /\b(concerned|worried|issue|problem|risk)\b/i,
+    };
+
+    for (const [type, pattern] of Object.entries(patterns)) {
+      if (pattern.test(text)) {
+        keyPoints.push({
+          type: type as KeyPointType,
+          text: text,
+          snippet: text.substring(0, 100)
+        });
+      }
+    }
+    return keyPoints;
+  };
+
   const renderTranscriptWithKeyPoints = (transcript: Transcript) => {
-    const keyPoints = detectKeyPoints(transcript.content);
+    const keyPoints = detectKeyPointsQuick(transcript.content);
     const hasKeyPoints = keyPoints.length > 0;
 
     return (
