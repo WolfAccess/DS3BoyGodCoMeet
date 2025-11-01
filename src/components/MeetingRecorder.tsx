@@ -126,7 +126,7 @@ export function MeetingRecorder({
   }, []);
 
   useEffect(() => {
-    if (isRecording && useMicrophone && currentSpeaker && recognitionRef.current) {
+    if (isRecording && useMicrophone && currentSpeaker && recognitionRef.current && !isListening) {
       try {
         console.log('Starting speech recognition for speaker:', currentSpeaker);
         setMicError(null);
@@ -135,7 +135,7 @@ export function MeetingRecorder({
       } catch (error) {
         console.error('Error starting recognition:', error);
       }
-    } else if (recognitionRef.current && isListening) {
+    } else if ((!isRecording || !useMicrophone || !currentSpeaker) && recognitionRef.current && isListening) {
       try {
         console.log('Stopping speech recognition');
         recognitionRef.current.stop();
@@ -145,7 +145,7 @@ export function MeetingRecorder({
         console.error('Error stopping recognition:', error);
       }
     }
-  }, [isRecording, useMicrophone, currentSpeaker]);
+  }, [isRecording, useMicrophone, currentSpeaker, isListening]);
 
   const handleAddParticipant = () => {
     if (newParticipantName.trim()) {
