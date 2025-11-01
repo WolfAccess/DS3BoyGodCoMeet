@@ -48,6 +48,11 @@ export function MeetingRecorder({
   const [interimTranscript, setInterimTranscript] = useState('');
 
   const recognitionRef = useRef<any>(null);
+  const currentSpeakerRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    currentSpeakerRef.current = currentSpeaker;
+  }, [currentSpeaker]);
 
   useEffect(() => {
     if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -72,12 +77,12 @@ export function MeetingRecorder({
 
         setInterimTranscript(interim);
 
-        if (final && currentSpeaker) {
+        if (final && currentSpeakerRef.current) {
           console.log('Speech recognition detected final text:', final.trim());
-          console.log('Current speaker:', currentSpeaker);
-          onAddTranscript(currentSpeaker, final.trim());
+          console.log('Current speaker:', currentSpeakerRef.current);
+          onAddTranscript(currentSpeakerRef.current, final.trim());
           setInterimTranscript('');
-        } else if (final && !currentSpeaker) {
+        } else if (final && !currentSpeakerRef.current) {
           console.warn('Speech detected but no speaker selected!');
         }
       };
