@@ -272,10 +272,15 @@ function App() {
       return;
     }
 
-    console.log('Adding transcript:', { participantId, text, meetingId: currentMeeting.id });
+    console.log('Adding transcript:', { participantId, text, textLength: text?.length, meetingId: currentMeeting.id });
+
+    if (!text || text.trim().length === 0) {
+      console.warn('Skipping empty transcript');
+      return;
+    }
 
     try {
-      console.log('Calling analysis API...');
+      console.log('Calling analysis API with text:', text);
       const analysis = await analyzeTranscript(text);
       console.log('Analysis result:', analysis);
 
