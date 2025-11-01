@@ -1,31 +1,74 @@
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useState, useMemo } from 'react';
-import { type ActionItem } from '../lib/supabase';
+import { useState, useMemo, useEffect } from 'react';
+import { supabase, type ActionItem } from '../lib/supabase';
 
 type Props = {
-  actionItems: ActionItem[];
-  participants: Array<{ id: string; name: string }>;
+  userId: string;
 };
 
-export function SmartReminders({ actionItems, participants }: Props) {
+export function SmartReminders({ userId }: Props) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [allActionItems, setAllActionItems] = useState<ActionItem[]>([]);
+  const [participantMap, setParticipantMap] = useState<Map<string, string>>(new Map());
 
-  const scheduledItems = actionItems.filter(item => !item.completed && item.due_date);
+  useEffect(() => {
+    loadAllActionItems();
+  }, [userId]);
+
+  const loadAllActionItems = async () => {
+    const { data: meetings } = await supabase
+      .from('meetings')
+      .select('id')
+      .eq('owner_id', userId);
+
+    if (!meetings) return;
+
+    const meetingIds = meetings.map(m => m.id);
+
+    const { data: actions } = await supabase
+      .from('action_items')
+      .select('*')
+      .in('meeting_id', meetingIds)
+      .not('due_date', 'is', null);
+
+    const { data: participants } = await supabase
+      .from('participants')
+      .select('id, name')
+      .in('meeting_id', meetingIds);
+
+    if (actions) {
+      setAllActionItems(actions);
+    }
+
+    if (participants) {
+      const map = new Map<string, string>();
+      participants.forEach(p => map.set(p.id, p.name));
+      setParticipantMap(map);
+    }
+  };
+
+  const scheduledItems = allActionItems.filter(item => !item.completed && item.due_date);
 
   const getParticipantName = (participantId?: string) => {
     if (!participantId) return 'Unassigned';
-    const participant = participants.find(p => p.id === participantId);
-    return participant?.name || 'Unknown';
+    return participantMap.get(participantId) || 'Unknown';
+  };
+
+  const getGMT8Date = (date?: Date): Date => {
+    const d = date || new Date();
+    const utc = d.getTime() + (d.getTimezoneOffset() * 60000);
+    return new Date(utc + (8 * 3600000));
   };
 
   const calendarData = useMemo(() => {
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
+    const gmt8Now = getGMT8Date(currentDate);
+    const year = gmt8Now.getFullYear();
+    const month = gmt8Now.getMonth();
 
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    const firstDay = new Date(Date.UTC(year, month, 1) + (8 * 3600000));
+    const lastDay = new Date(Date.UTC(year, month + 1, 0) + (8 * 3600000));
+    const daysInMonth = lastDay.getUTCDate();
+    const startingDayOfWeek = firstDay.getUTCDay();
 
     const days: Array<{ date: number | null; items: ActionItem[] }> = [];
 
@@ -34,10 +77,14 @@ export function SmartReminders({ actionItems, participants }: Props) {
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
-      const dateStr = new Date(year, month, day).toISOString().split('T')[0];
+      const checkDate = new Date(Date.UTC(year, month, day) + (8 * 3600000));
+      const dateStr = checkDate.toISOString().split('T')[0];
+
       const dayItems = scheduledItems.filter(item => {
-        const itemDate = new Date(item.due_date!).toISOString().split('T')[0];
-        return itemDate === dateStr;
+        const itemDate = new Date(item.due_date!);
+        const itemGMT8 = getGMT8Date(itemDate);
+        const itemDateStr = itemGMT8.toISOString().split('T')[0];
+        return itemDateStr === dateStr;
       });
       days.push({ date: day, items: dayItems });
     }
@@ -60,17 +107,20 @@ export function SmartReminders({ actionItems, participants }: Props) {
 
   const isToday = (day: number | null) => {
     if (!day) return false;
-    const today = new Date();
-    return day === today.getDate() &&
-           currentDate.getMonth() === today.getMonth() &&
-           currentDate.getFullYear() === today.getFullYear();
+    const today = getGMT8Date();
+    const gmt8Current = getGMT8Date(currentDate);
+    return day === today.getUTCDate() &&
+           gmt8Current.getUTCMonth() === today.getUTCMonth() &&
+           gmt8Current.getUTCFullYear() === today.getUTCFullYear();
   };
 
   const isPast = (day: number | null) => {
     if (!day) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const checkDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+    const today = getGMT8Date();
+    today.setUTCHours(0, 0, 0, 0);
+    const gmt8Current = getGMT8Date(currentDate);
+    const checkDate = new Date(Date.UTC(gmt8Current.getUTCFullYear(), gmt8Current.getUTCMonth(), day) + (8 * 3600000));
+    checkDate.setUTCHours(0, 0, 0, 0);
     return checkDate < today;
   };
 

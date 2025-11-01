@@ -610,6 +610,10 @@ function App() {
             </div>
           )}
 
+          <div className="mt-12">
+            <SmartReminders userId={user.id} />
+          </div>
+
           {allMeetings.length > 0 && (
             <>
               <div className="mt-12">
@@ -716,12 +720,6 @@ function App() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <EmotionHeatmap timeline={analytics?.emotion_timeline || []} />
           <TalkBalanceMeter participants={participants} />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <div className="lg:col-span-3">
-            <SmartReminders actionItems={actionItems} participants={participants} />
-          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

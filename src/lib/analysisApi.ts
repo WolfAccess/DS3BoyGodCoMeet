@@ -71,17 +71,23 @@ export function getKeyPointIcon(type: KeyPointType): string {
   return icons[type];
 }
 
+function getGMT8Date(): Date {
+  const now = new Date();
+  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
+  return new Date(utc + (8 * 3600000));
+}
+
 export function extractDueDate(text: string): Date | null {
   const lowerText = text.toLowerCase();
 
   const todayMatch = lowerText.match(/today|tonight/i);
   if (todayMatch) {
-    return new Date();
+    return getGMT8Date();
   }
 
   const tomorrowMatch = lowerText.match(/tomorrow/i);
   if (tomorrowMatch) {
-    const tomorrow = new Date();
+    const tomorrow = getGMT8Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow;
   }
@@ -89,7 +95,7 @@ export function extractDueDate(text: string): Date | null {
   const daysMatch = lowerText.match(/in (\d+) days?/i);
   if (daysMatch) {
     const days = parseInt(daysMatch[1]);
-    const future = new Date();
+    const future = getGMT8Date();
     future.setDate(future.getDate() + days);
     return future;
   }
@@ -98,12 +104,22 @@ export function extractDueDate(text: string): Date | null {
   if (weekMatch) {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const targetDay = days.indexOf(weekMatch[1].toLowerCase());
-    const today = new Date();
+    const today = getGMT8Date();
     const currentDay = today.getDay();
     const daysUntil = (targetDay + 7 - currentDay) % 7 || 7;
-    const nextDate = new Date();
+    const nextDate = getGMT8Date();
     nextDate.setDate(today.getDate() + daysUntil);
     return nextDate;
+  }
+
+  const dateMatch = text.match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+  if (dateMatch) {
+    const month = parseInt(dateMatch[1]) - 1;
+    const day = parseInt(dateMatch[2]);
+    const year = dateMatch[3] ? (dateMatch[3].length === 2 ? 2000 + parseInt(dateMatch[3]) : parseInt(dateMatch[3])) : getGMT8Date().getFullYear();
+
+    const utc = Date.UTC(year, month, day, 0, 0, 0);
+    return new Date(utc + (8 * 3600000));
   }
 
   return null;
