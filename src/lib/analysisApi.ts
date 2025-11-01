@@ -1,6 +1,6 @@
 export type Emotion = 'calm' | 'tense' | 'enthusiastic' | 'neutral';
 export type SentimentType = 'conflict' | 'agreement' | 'neutral';
-export type KeyPointType = 'decision' | 'action' | 'question' | 'important' | 'agreement' | 'concern';
+export type KeyPointType = 'decision' | 'question' | 'important' | 'agreement';
 
 export interface KeyPoint {
   type: KeyPointType;
@@ -53,12 +53,10 @@ export async function analyzeTranscript(text: string): Promise<AnalysisResponse>
 
 export function getKeyPointColor(type: KeyPointType): string {
   const colors: Record<KeyPointType, string> = {
-    decision: 'bg-purple-100 text-purple-800 border-purple-300',
-    action: 'bg-blue-100 text-blue-800 border-blue-300',
+    decision: 'bg-blue-100 text-blue-800 border-blue-300',
     question: 'bg-yellow-100 text-yellow-800 border-yellow-300',
     important: 'bg-red-100 text-red-800 border-red-300',
-    agreement: 'bg-green-100 text-green-800 border-green-300',
-    concern: 'bg-orange-100 text-orange-800 border-orange-300'
+    agreement: 'bg-green-100 text-green-800 border-green-300'
   };
   return colors[type];
 }
@@ -66,11 +64,9 @@ export function getKeyPointColor(type: KeyPointType): string {
 export function getKeyPointIcon(type: KeyPointType): string {
   const icons: Record<KeyPointType, string> = {
     decision: '✓',
-    action: '→',
     question: '?',
     important: '!',
-    agreement: '👍',
-    concern: '⚠'
+    agreement: '👍'
   };
   return icons[type];
 }

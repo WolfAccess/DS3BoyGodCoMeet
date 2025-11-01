@@ -11,7 +11,7 @@ interface AnalysisRequest {
 }
 
 interface KeyPoint {
-  type: 'decision' | 'action' | 'question' | 'important' | 'agreement' | 'concern';
+  type: 'decision' | 'question' | 'important' | 'agreement';
   text: string;
   snippet: string;
 }
@@ -73,12 +73,6 @@ function extractKeyPoints(text: string): KeyPoint[] {
       /\b(we're choosing|selected|picking|opting for|choosing to)\b/i,
       /\b(decided|decide to|decision is|let's go with)\b/i
     ],
-    action: [
-      /\b(i(?:'ll| will)|someone needs to|we need to|action item|i need to)\b/i,
-      /\b(follow up|next steps?|to do|deadline|by tomorrow|by today)\b/i,
-      /\b(i'll handle|take care of|work on|responsible for|i can)\b/i,
-      /\b(let me|i'll go|i'll make|i'll send|i'll create|i'll update)\b/i
-    ],
     question: [
       /\b(what|how|why|when|where|who|should we|can we|could we)\b.*\?/i,
       /\b(do you think|any thoughts on|wondering if)\b/i,
@@ -94,11 +88,6 @@ function extractKeyPoints(text: string): KeyPoint[] {
       /\b(agreed|agree|exactly|absolutely|definitely|makes sense|good idea)\b/i,
       /\b(i like|sounds good|perfect|approved|support|yes|right|correct)\b/i,
       /\b(let's do it|let's go|i'm in|count me in)\b/i
-    ],
-    concern: [
-      /\b(concerned about|worried about|issue with|problem with)\b/i,
-      /\b(risk|challenge|obstacle|blocker|concern|worry)\b/i,
-      /\b(not sure|uncertain|hesitant|doubt)\b/i
     ]
   };
 
